@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TitanBot Dashboard - Modern Glassmorphism UI</title>
+    <link rel="stylesheet" href="/css/glassmorphism.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Dashboard Specific Styles */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            padding: var(--spacing-xl);
+            overflow-y: auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, var(--accent-blue) 0%, transparent 70%);
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: var(--spacing-sm) 0;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-change {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 12px;
+            margin-top: var(--spacing-sm);
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: var(--spacing-lg);
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: var(--spacing-lg) 0;
+        }
+
+        .sidebar-nav-item {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .sidebar-nav-link {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base);
+            position: relative;
+        }
+
+        .sidebar-nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 0;
+            background: linear-gradient(180deg, var(--accent-blue), var(--accent-cyan));
+            border-radius: 0 3px 3px 0;
+            transition: height var(--transition-base);
+        }
+
+        .sidebar-nav-link:hover,
+        .sidebar-nav-link.active {
+            background: var(--glass-bg-hover);
+            color: var(--text-primary);
+        }
+
+        .sidebar-nav-link.active::before {
+            height: 70%;
+        }
+
+        .sidebar-nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .activity-feed {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--glass-border);
+            transition: background var(--transition-base);
+        }
+
+        .activity-item:hover {
+            background: var(--glass-bg-hover);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: var(--glass-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+        }
+
+        .quick-action-btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .quick-action-btn:hover {
+            background: var(--glass-bg-hover);
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+
+        .quick-action-icon {
+            font-size: 32px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .search-bar {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding-left: 40px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .user-menu:hover {
+            background: var(--glass-bg-hover);
+            border-color: var(--accent-blue);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+        }
+
+        .notification-badge {
+            position: relative;
+        }
+
+        .notification-badge::after {
+            content: attr(data-count);
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--error);
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: var(--radius-full);
+            min-width: 18px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .glass-sidebar {
+                display: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Dashboard Layout -->
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="glass-sidebar">
+            <div class="sidebar-header" style="padding: var(--spacing-lg); border-bottom: 1px solid var(--glass-border);">
+                <h2 style="font-size: 24px; font-weight: 800; background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    TitanBot
+                </h2>
+                <p style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">Premium Dashboard</p>
+            </div>
+
+            <nav>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link active">
+                            <span class="sidebar-nav-icon">📊</span>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link">
+                            <span class="sidebar-nav-icon">👥</span>
+                            <span>Users</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link">
+                            <span class="sidebar-nav-icon">🎫</span>
+                            <span>Tickets</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link">
+                            <span class="sidebar-nav-icon">🛡️</span>
+                            <span>Moderation</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link">
+                            <span class="sidebar-nav-icon">💰</span>
+                            <span>Economy</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link">
+                            <span class="sidebar-nav-icon">📈</span>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="#" class="sidebar-nav-link">
+                            <span class="sidebar-nav-icon">⚙️</span>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div style="position: absolute; bottom: var(--spacing-lg); left: var(--spacing-lg); right: var(--spacing-lg);">
+                <div class="glass-card" style="padding: var(--spacing-md);">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-sm);">
+                        <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--success);"></div>
+                        <span style="font-size: 12px; font-weight: 600;">System Status</span>
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-muted);">All systems operational</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="glass-navbar" style="margin: calc(var(--spacing-xl) * -1) calc(var(--spacing-xl) * -1) var(--spacing-xl); padding: var(--spacing-lg) var(--spacing-xl);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1 style="font-size: 28px; font-weight: 800; margin-bottom: var(--spacing-xs);">Dashboard</h1>
+                        <p style="color: var(--text-secondary); font-size: 14px;">Welcome back, Admin!</p>
+                    </div>
+                    <div class="header-actions">
+                        <div class="search-bar">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="glass-input" placeholder="Search...">
+                        </div>
+                        <button class="glass-button-secondary notification-badge" data-count="3" style="padding: var(--spacing-md); border-radius: var(--radius-full);">
+                            🔔
+                        </button>
+                        <div class="user-menu">
+                            <div class="user-avatar"></div>
+                            <span style="font-weight: 600;">Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="glass-card stat-card slide-up">
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value">12,458</div>
+                    <div class="stat-change text-success">
+                        ↑ 12.5% from last month
+                    </div>
+                </div>
+
+                <div class="glass-card stat-card slide-up" style="animation-delay: 0.1s;">
+                    <div class="stat-label">Active Tickets</div>
+                    <div class="stat-value">247</div>
+                    <div class="stat-change text-warning">
+                        ↑ 5.2% from last week
+                    </div>
+                </div>
+
+                <div class="glass-card stat-card slide-up" style="animation-delay: 0.2s;">
+                    <div class="stat-label">Commands Used</div>
+                    <div class="stat-value">89.2K</div>
+                    <div class="stat-change text-success">
+                        ↑ 23.1% from yesterday
+                    </div>
+                </div>
+
+                <div class="glass-card stat-card slide-up" style="animation-delay: 0.3s;">
+                    <div class="stat-label">Server Uptime</div>
+                    <div class="stat-value">99.9%</div>
+                    <div class="stat-change text-success">
+                        ✓ Excellent
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="glass-card slide-up" style="animation-delay: 0.4s;">
+                <h3 style="font-size: 18px; font-weight: 700; margin-bottom: var(--spacing-lg);">Quick Actions</h3>
+                <div class="quick-actions">
+                    <a href="#" class="quick-action-btn">
+                        <div class="quick-action-icon">👤</div>
+                        <div style="font-weight: 600;">Add User</div>
+                    </a>
+                    <a href="#" class="quick-action-btn">
+                        <div class="quick-action-icon">🎫</div>
+                        <div style="font-weight: 600;">New Ticket</div>
+                    </a>
+                    <a href="#" class="quick-action-btn">
+                        <div class="quick-action-icon">📢</div>
+                        <div style="font-weight: 600;">Announcement</div>
+                    </a>
+                    <a href="#" class="quick-action-btn">
+                        <div class="quick-action-icon">🔧</div>
+                        <div style="font-weight: 600;">Settings</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-lg); margin-top: var(--spacing-xl);">
+                <!-- Chart Section -->
+                <div class="glass-card slide-up" style="animation-delay: 0.5s;">
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: var(--spacing-lg);">Activity Overview</h3>
+                    <div class="chart-container" style="background: var(--glass-bg); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                        📊 Chart Placeholder - Integrate Chart.js or similar
+                    </div>
+                    <div style="display: flex; gap: var(--spacing-lg); margin-top: var(--spacing-lg);">
+                        <div style="flex: 1;">
+                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: var(--spacing-xs);">Commands</div>
+                            <div class="glass-progress">
+                                <div class="glass-progress-bar" style="width: 75%;"></div>
+                            </div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: var(--spacing-xs);">Messages</div>
+                            <div class="glass-progress">
+                                <div class="glass-progress-bar" style="width: 60%;"></div>
+                            </div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: var(--spacing-xs);">Events</div>
+                            <div class="glass-progress">
+                                <div class="glass-progress-bar" style="width: 90%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Feed -->
+                <div class="glass-card slide-up" style="animation-delay: 0.6s;">
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: var(--spacing-lg);">Recent Activity</h3>
+                    <div class="activity-feed">
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));">
+                                👤
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">New user joined</div>
+                                <div class="activity-time">2 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: linear-gradient(135deg, var(--success), #00cc77);">
+                                ✅
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Ticket #1234 resolved</div>
+                                <div class="activity-time">15 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: linear-gradient(135deg, var(--warning), #ff9900);">
+                                ⚠️
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Warning issued to user</div>
+                                <div class="activity-time">1 hour ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: linear-gradient(135deg, var(--accent-purple), #9933ff);">
+                                🎉
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Giveaway started</div>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: linear-gradient(135deg, var(--info), #0099ff);">
+                                📢
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Announcement posted</div>
+                                <div class="activity-time">3 hours ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Server Status -->
+            <div class="glass-card slide-up" style="margin-top: var(--spacing-xl); animation-delay: 0.7s;">
+                <h3 style="font-size: 18px; font-weight: 700; margin-bottom: var(--spacing-lg);">Server Status</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-lg);">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
+                            <span style="font-size: 14px; color: var(--text-secondary);">CPU Usage</span>
+                            <span class="glass-badge glass-badge-success">Normal</span>
+                        </div>
+                        <div class="glass-progress">
+                            <div class="glass-progress-bar" style="width: 45%;"></div>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: var(--spacing-xs);">45%</div>
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
+                            <span style="font-size: 14px; color: var(--text-secondary);">Memory</span>
+                            <span class="glass-badge glass-badge-warning">Moderate</span>
+                        </div>
+                        <div class="glass-progress">
+                            <div class="glass-progress-bar" style="width: 68%;"></div>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: var(--spacing-xs);">68%</div>
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
+                            <span style="font-size: 14px; color: var(--text-secondary);">Disk Space</span>
+                            <span class="glass-badge glass-badge-success">Healthy</span>
+                        </div>
+                        <div class="glass-progress">
+                            <div class="glass-progress-bar" style="width: 32%;"></div>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: var(--spacing-xs);">32%</div>
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
+                            <span style="font-size: 14px; color: var(--text-secondary);">Network</span>
+                            <span class="glass-badge glass-badge-success">Stable</span>
+                        </div>
+                        <div class="glass-progress">
+                            <div class="glass-progress-bar" style="width: 28%;"></div>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: var(--spacing-xs);">28 Mbps</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Example Modal (Hidden by default) -->
+    <div class="glass-modal-overlay" style="display: none;" id="exampleModal">
+        <div class="glass-modal">
+            <h2 style="font-size: 24px; font-weight: 700; margin-bottom: var(--spacing-lg);">Example Modal</h2>
+            <p style="color: var(--text-secondary); margin-bottom: var(--spacing-xl);">
+                This is a modern glassmorphism modal with smooth animations and blur effects.
+            </p>
+            <div style="display: flex; gap: var(--spacing-md); justify-content: flex-end;">
+                <button class="glass-button-secondary" onclick="document.getElementById('exampleModal').style.display='none'">
+                    Cancel
+                </button>
+                <button class="glass-button">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Add intersection observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.slide-up').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+
+        // Update time every second
+        setInterval(() => {
+            const now = new Date();
+            document.querySelectorAll('.activity-time').forEach((el, index) => {
+                const minutes = [2, 15, 60, 120, 180][index];
+                if (minutes < 60) {
+                    el.textContent = `${minutes} minutes ago`;
+                } else {
+                    el.textContent = `${Math.floor(minutes / 60)} hour${Math.floor(minutes / 60) > 1 ? 's' : ''} ago`;
+                }
+            });
+        }, 60000);
+    </script>
+</body>
+</html>
